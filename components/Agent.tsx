@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { vapi } from "@/lib/vapi.sdk";
 import { interviewer } from "@/constants";
+import { createFeedback } from "@/lib/actions/general.action";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -66,17 +67,18 @@ const Agent = ({
   }, []);
 
   const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-    console.log("genrate  feeback here");
+    console.log("Generate feeback here.");
 
-    const { success, id } = {
-      success: true,
-      id: "feedback-id",
-    };
+    const { success, feedbackId : id } = await createFeedback({
+      interviewId: interviewId!,
+      userId: userId!,
+      transcript: messages
+    })
 
     if (success && id) {
       router.push(`/interview/${interviewId}/feedback`);
-    } else {
-      console.error("Error saving feeback");
+    } else { 
+      console.log("Error saving feeback");
       router.push("/");
     }
   };
@@ -90,17 +92,6 @@ const Agent = ({
       }
     }
   }, [messages, callStatus, type, userId]);
-
-  // const handleCall = async () => {
-  //   setCallStatus(CallStatus.CONNECTING);
-
-  //   await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-  //     variableValues: {
-  //       username: userName,
-  //       userid: userId,
-  //     },
-  //   });
-  // };
 
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
