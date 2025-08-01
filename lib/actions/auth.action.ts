@@ -2,6 +2,7 @@
 
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const ONE_WEEK = 60 * 60 * 24 * 7; // 1 week
 
@@ -65,6 +66,30 @@ export async function signIn(params: SignInParams) {
       success: false,
       message: "Failed to log into an account.",
     };
+  }
+}
+
+export async function signOut() {
+  try {
+    const cookieStore = await cookies();
+
+    // Remove the session cookie
+    cookieStore.delete("session");
+
+    return {
+      success: true,
+      message: "Logged out successfully.",
+    };
+  } catch (e) {
+    console.error("Error during logout:", e);
+
+    return {
+      success: false,
+      message: "Failed to log out.",
+    };
+  } finally {
+    // Redirect to sign-in page regardless of success/failure
+    redirect("/sign-in");
   }
 }
 

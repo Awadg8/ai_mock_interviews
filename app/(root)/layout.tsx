@@ -1,4 +1,4 @@
-import { isAuthenticated } from "@/lib/actions/auth.action";
+import { isAuthenticated, signOut } from "@/lib/actions/auth.action";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -16,6 +16,15 @@ const Rootlayout = async ({ children }: { children: ReactNode }) => {
           <Image src="/logo.svg" alt="Logo" width={38} height={32} />
           <h2 className="text-primary-100">PrepWise</h2>
         </Link>
+
+        <form action={signOut}>
+          <button
+              type="submit"
+              className="hover:bg-white/25 px-4 py-2 rounded-3xl transition-all"
+          >
+            Log Out
+          </button>
+        </form>
       </nav>
 
       {children}

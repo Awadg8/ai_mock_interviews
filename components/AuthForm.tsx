@@ -140,7 +140,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         <p className="text-center">
           {isSignIn ? "No account yet?" : "Have an account already?"}
           <Link
-            href={!isSignIn ? "/sign-in" : "sign-up"}
+            href={!isSignIn ? "/sign-in" : "/sign-up"}
             className="font-bold text-user-primary ml-1"
           >
             {!isSignIn ? "Sign in" : "Sign up"}
