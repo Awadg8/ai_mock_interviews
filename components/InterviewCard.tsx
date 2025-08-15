@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import DisplayTechIcons from "./DisplayTechIcons";
-import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
+// import { getFeedbackByInterviewId } from "@/lib/actions/general.action";
 
 const InterviewCard = async ({
   id,
@@ -13,10 +13,14 @@ const InterviewCard = async ({
   type,
   techstack,
   createdAt,
-}: InterviewCardProps) => {
-  const feedback = userId && id 
-    ? await getFeedbackByInterviewId({ interviewId : id, userId })
-    : null
+  currentUserId,
+}: InterviewCardProps & { currentUserId?: string }) => {
+  // Only fetch feedback if this interview belongs to the current user
+  let feedback = null;
+  if (currentUserId && userId === currentUserId) {
+    const { getFeedbackByInterviewId } = await import("@/lib/actions/general.action");
+    feedback = await getFeedbackByInterviewId({ interviewId: id, userId });
+  }
   const normalizedType = /mix/gi.test(type) ? "Mixed" : type;
   const formattedDate = dayjs(
     feedback?.createdAt || createdAt || Date.now()
@@ -51,15 +55,19 @@ const InterviewCard = async ({
               <p>{formattedDate}</p>
             </div>
 
-            <div className="flex flex-row gap-2 items-center">
-              <Image src="/star.svg" alt="star" width={22} height={22} />
-              <p>{feedback?.totalScore || "---"}/100</p>
-            </div>
+            {currentUserId && userId === currentUserId && (
+              <div className="flex flex-row gap-2 items-center">
+                <Image src="/star.svg" alt="star" width={22} height={22} />
+                <p>{feedback?.totalScore || "---"}/100</p>
+              </div>
+            )}
           </div>
 
           <p className="line-clamp-2 mt-5">
-            {feedback?.finalAssessment ||
-              "You haven't taken the interview yet. Take it now to improve your skills."}
+            {currentUserId && userId === currentUserId
+              ? feedback?.finalAssessment ||
+                "You haven't taken the interview yet. Take it now to improve your skills."
+              : "Take this interview to improve your skills!"}
           </p>
         </div>
 
@@ -69,12 +77,14 @@ const InterviewCard = async ({
           <Button className="btn-primary">
             <Link
               href={
-                feedback
+                currentUserId && userId === currentUserId && feedback
                   ? `/interview/${id}/feedback`
                   : `/interview/${id}`
               }
             >
-              {feedback ? "Check Feedback" : "View Interview"}
+              {currentUserId && userId === currentUserId && feedback
+                ? "Check Feedback"
+                : "View Interview"}
             </Link>
           </Button>
         </div>

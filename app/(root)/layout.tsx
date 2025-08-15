@@ -1,14 +1,22 @@
 import {isAuthenticated, signOut} from "@/lib/actions/auth.action";
+import { getCurrentUser } from "@/lib/actions/auth.action";
 import Image from "next/image";
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import React, {ReactNode} from "react";
 import ProfileCard from "@/components/ProfileCard";
 
-const Rootlayout = async ({children, username}: { children: ReactNode }) => {
+const Rootlayout = async ({children}: { children: ReactNode }) => {
     const isUserAuthenticated = await isAuthenticated();
+    const user = await getCurrentUser();
 
     if (!isUserAuthenticated) redirect("/sign-in");
+
+    // Wrap signOut to match the expected signature
+    const handleSignOut = async (formData: FormData) => {
+        'use server';
+        await signOut();
+    };
 
     return (
         <div className="root-layout">
@@ -18,9 +26,8 @@ const Rootlayout = async ({children, username}: { children: ReactNode }) => {
                     <h2 className="text-primary-100">PrepWise</h2>
                 </Link>
 
-
                 <div className="flex items-center gap-3">
-                    <form action={signOut} className="cursor-pointer">
+                    <form action={handleSignOut} className="cursor-pointer">
                         <button
                             type="submit"
                             className="hover:bg-white/25 px-4 py-2 rounded-3xl transition-all cursor-pointer"
@@ -30,8 +37,7 @@ const Rootlayout = async ({children, username}: { children: ReactNode }) => {
                         </button>
                     </form>
                     <div className="cursor-pointer">
-
-                        <ProfileCard />
+                        <ProfileCard userName={user?.name || ""} />
                     </div>
                 </div>
 

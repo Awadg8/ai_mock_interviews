@@ -12,9 +12,9 @@ import React from "react";
 const page = async () => {
   const user = await getCurrentUser();
 
-  const [userInterviews, latestInterviews] = await Promise.all([
-    await getInterviewsByUserId(user?.id!),
-    await getLatestInterviews({ userId: user?.id! }),
+  const [userInterviews = [], latestInterviews = []] = await Promise.all([
+    getInterviewsByUserId(user?.id!),
+    getLatestInterviews({ userId: user?.id! }),
   ]);
 
   const hasPastInterviews = userInterviews?.length > 0;
@@ -49,7 +49,7 @@ const page = async () => {
         <div className="interviews-section">
           {hasPastInterviews ? (
             userInterviews?.map((interview) => (
-              <InterviewCard {...interview} key={interview.id} />
+              <InterviewCard {...interview} key={interview.id} currentUserId={user?.id} />
             ))
           ) : (
             <p>You haven't taken any interviews yet</p>
@@ -62,7 +62,7 @@ const page = async () => {
         <div className="interviews-section">
           {hasUpcomingInterviews ? (
             latestInterviews?.map((interview) => (
-              <InterviewCard {...interview} key={interview.id} />
+              <InterviewCard {...interview} key={interview.id} currentUserId={user?.id} />
             ))
           ) : (
             <p>There are no new interviews available</p>
